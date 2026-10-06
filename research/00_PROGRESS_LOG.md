@@ -1,5 +1,7 @@
 # Research progress log (resume point)
 
+**STATUS (6 Oct 2026): audit steps A–H DONE. Read research/FINAL_REPORT.md first. Next step (only on the user's command): Claude Code execution files, starting with E0 model-organism validation on PTB-XL/CODE-15 (does not touch the confirmatory datasets — keeps the Nature Registered Report route open).**
+
 If a session is interrupted, start the next session by saying:
 "Read research/00_PROGRESS_LOG.md and continue from the last unfinished step with the same effort."
 
@@ -20,7 +22,7 @@ Full research + novelty audit, nothing else. Rules from the user:
 | E | Deep novelty search | DONE → research/E_novelty_search.md |
 | F | Flagship design + stress test | DONE → research/F_flagship_design_and_stress_test.md |
 | G | Data facts | DONE → research/G_data_facts.md |
-| H | Final report: research/FINAL_REPORT.md | pending |
+| H | Final report | DONE → research/FINAL_REPORT.md |
 
 (Older step numbering below = first pass of this session; kept as raw notes.)
 
