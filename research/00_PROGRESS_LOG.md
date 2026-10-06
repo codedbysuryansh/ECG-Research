@@ -15,8 +15,8 @@ Full research + novelty audit, nothing else. Rules from the user:
 |---|---|---|
 | A | Restate original architecture exactly (from the 7 repo files) | DONE → research/A_original_architecture.md |
 | B | Premise check (reputed journals only) | DONE → research/B_premise_check.md (verdict: NOT established in general; task-dependent) |
-| C | Component-by-component novelty + validity verdicts (SAE, LEACE, Shapley 5-way, prevalence-proxy shortcut, 3-case logic, within-site design) | partly done (see Step 2 findings below) |
-| D | Independently verify the previous session's ledger claims (research/prev_session_ECG_Nature_Research_Ledger.md) | pending |
+| C | Component-by-component novelty + validity verdicts | DONE → research/C_component_verdicts.md |
+| D | Verify previous session's ledger | DONE → research/D_previous_ledger_verification.md |
 | E | Deep novelty search: flagship candidates incl. previous "hidden race correction" + alternatives (migration/environment, genetics, location=acquisition, outcome-anchored, normative charts) | pending |
 | F | Stress-test the chosen direction (reviewer objections, competitors, theory) | pending |
 | G | Data facts needed for feasibility (brief) | pending |
