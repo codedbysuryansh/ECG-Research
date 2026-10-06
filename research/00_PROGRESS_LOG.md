@@ -3,15 +3,26 @@
 If a session is interrupted, start the next session by saying:
 "Read research/00_PROGRESS_LOG.md and continue from the last unfinished step with the same effort."
 
+## CURRENT TASK (user's last prompt, 6 Oct 2026)
+Full research + novelty audit, nothing else. Rules from the user:
+- Counter the user when they are wrong; do not just agree. Give reasons.
+- Evidence = papers in reputed peer-reviewed journals. Preprints/workshops may be reported but must be FLAGGED as such.
+- First restate the user's ORIGINAL architecture exactly, then say for each part: novel or not (with papers), valid or not (with reasons), and whether/why we change it.
+- Then: the exact gap, how we fill it, what we do — aimed at *Nature* (main journal).
+- No to-do lists for the user. No Claude Code files yet.
+
 | Step | What | Status |
 |---|---|---|
-| 1 | Audit the 7 existing files (what's strong, what's overclaimed/wrong) | in progress |
-| 2 | Scoop check of the current plan (SAE/LEACE/Shapley/MIMIC race) as of Oct 2026 | in progress |
-| 3 | What does *Nature* (main journal) actually publish in medical AI / fairness? The bar. | pending |
-| 4 | Generate candidate "big ideas" and novelty-check each | pending |
-| 5 | Dataset feasibility (PTB-XL, MIMIC-IV-ECG, UK Biobank, CODE, Chapman, SPH, etc.) | pending |
-| 6 | Final report + recommendation | pending |
-| 7 (later) | Claude Code execution files | not started (by user's instruction) |
+| A | Restate original architecture exactly (from the 7 repo files) | pending |
+| B | Premise check: is "ECG-AI is biased across regions/populations" established? (reputed journals only) | pending |
+| C | Component-by-component novelty + validity verdicts (SAE, LEACE, Shapley 5-way, prevalence-proxy shortcut, 3-case logic, within-site design) | partly done (see Step 2 findings below) |
+| D | Independently verify the previous session's ledger claims (research/prev_session_ECG_Nature_Research_Ledger.md) | pending |
+| E | Deep novelty search: flagship candidates incl. previous "hidden race correction" + alternatives (migration/environment, genetics, location=acquisition, outcome-anchored, normative charts) | pending |
+| F | Stress-test the chosen direction (reviewer objections, competitors, theory) | pending |
+| G | Data facts needed for feasibility (brief) | pending |
+| H | Final report: research/FINAL_REPORT.md | pending |
+
+(Older step numbering below = first pass of this session; kept as raw notes.)
 
 Environment note: in the session of 6 Oct 2026, direct page fetching (arxiv.org, nature.com, huggingface, semantic scholar, openalex) was blocked by the environment network policy; only web *search* worked. Evidence below is therefore from search-engine abstracts/summaries. Items marked [VERIFY-FULLTEXT] should be read in full by a human before being cited.
 
