@@ -81,7 +81,7 @@ AI-bias papers in top general journals (the bar for a "bias" paper):
 ## ROUND 2 (user request, 6 Oct 2026): "REVERIFY everything without bias, independently; write very detailed Claude Code files"
 | Step | What | Status |
 |---|---|---|
-| R1 | Independent re-verification of every claim; actively try to falsify own recommendation → research/H_reverification.md | in progress |
+| R1 | Independent re-verification → research/H_reverification.md | DONE (9 corrections/additions) |
 | R2 | Verify technical specs: dataset formats, FM checkpoints/inputs, library APIs, ECG criteria formulas, echo truth definitions → research/I_technical_specs.md | pending |
 | R3 | Tested reference implementation of the core method (synthetic data) → claude_code/reference/ | pending |
 | R4 | Claude Code instruction files: CLAUDE.md, claude_code/*.md, .claude/commands, .claude/agents, configs | pending |

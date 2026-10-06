@@ -4,6 +4,8 @@
 ---
 
 ## 0. Bottom line
+> **Round-2 corrections (see `H_reverification.md`):** (1) Your Technical Companion *did* call for CMR-confirmed/adjudicated truth in Stage 1; the gap is that the LEACE/patching test and the IEEE draft are judged on ECG-derived labels. (2) Premise wording softened: *discrimination usually transports; calibration and operating thresholds often do not; a few tasks show real gaps*, so your premise is partly right in the calibration sense. (3) Dallas Heart Study is *JAMA Cardiol* **2018**. (4) The JAMIA 2026 paper analyses scenarios and tests no deployed model against truth. (5) The 12SL statement means its documentation describes age- and sex-specific, not race-specific, criteria. (6) **New design element:** echo-"false positives" can be early disease (3.07× odds of later LVH, *Heart Rhythm O2* 2026), so follow-up truth (later echo, mortality) is added to adjudicate them by group.
+
 1. **Your original architecture, as written, is no longer novel.** Its four "firsts" are taken: sparse autoencoders on ECG foundation models (July 2026), the multi-cause Shapley decomposition (ICML 2023), cross-ethnic ECG-AI fairness (2020–2026), and LEACE on physiological embeddings (2026). Its conceptual frame of prevalence, presentation and annotation bias was published in *Nature Machine Intelligence* in 2024.
 2. **Your premise is weaker than you think.** "ECG-AI is biased against people from other regions" is **not established**. Western-trained ECG-AI for heart-pump weakness worked in Nigeria (*Nature Medicine* 2024 randomised trial), Uganda and Korea, and across US racial groups. Gaps are real only for some tasks (e.g., heart-failure prediction in young Black patients), and nobody knows why. For India specifically, the best normal-limits study says Western criteria apply to Indians.
 3. **Your design has a logic gap that no amount of extra tools fixes.** It has no ground truth independent of how ECGs are read. Without that, "the AI is biased", "the AI is correctly using real population differences" and "the training labels were biased" look identical. So "erase the population signal with LEACE and see if the gap closes" cannot tell you whether you fixed a bias or broke correct physiology.
@@ -35,7 +37,7 @@ Find what tells the AI a patient's population/"localization" → surgically remo
   1. LEACE is only *linearly* guaranteed. In CXR foundation models, race stayed decodable at AUROC 0.91 after linear removal, and the race gap tracked disease base rates instead (*Diagnostics* 2026) [J-low].
   2. Erasing demographics can **create** bias when groups truly differ (Parikh…Feragen, Sept 2026 [P]). Race adjustment can **improve** equity (Zink, Obermeyer, Pierson, *PNAS* 2024) [J].
   3. Shortcut removal gave only "locally optimal" fairness that did not transfer (Yang…Ghassemi, *Nat Med* 2024) [J].
-  4. In ECG, the population signal sits in the same waveform parts that diagnose disease (QRS voltage; Bollepalli 2025) [J]. Genetic African ancestry, not self-reported race, tracks both higher voltage **and** real concentric LV remodelling on MRI (Dallas Heart Study, *JAMA Cardiology* 2019) [J]. "Correcting away" voltage could therefore hide real disease, the same trap as race-corrected eGFR.
+  4. In ECG, the population signal sits in the same waveform parts that diagnose disease (QRS voltage; Bollepalli 2025) [J]. Genetic African ancestry, not self-reported race, tracks both higher voltage **and** real concentric LV remodelling on MRI (Dallas Heart Study, *JAMA Cardiology* 2018) [J]. "Correcting away" voltage could therefore hide real disease, the same trap as race-corrected eGFR.
 - **The 3-case logic is incomplete.** Two missing cases are documented in ECG:
   - *(4) The answer key is biased.* Race-blind LVH voltage criteria have lower specificity in Black patients versus echo (*JAMA* 1992; LIFE, *Am J Hypertens* 2002) [J], and ECGFounder was trained on labels assisted by the race-blind 12SL program.
   - *(5) Using population information is correct.*
@@ -64,9 +66,9 @@ Run this over thousands of truth-matched patients, many models and many tasks, a
 
 ## 5. The gap, stated exactly
 Nobody has determined, **against independent physiological truth**, whether ECG-AI's use of the population information it reads from the waveform **helps or harms** patients, or **what decides the direction**. Evidence that the gap is real, open and contested:
-- *JAMIA* 33(4):922 (Apr 2026; Abdalla, James, **D.S. Jones**, Abdalla) [J]: removing race from inputs does not remove race correction (proxies); it presents scenarios only, with **no experiments**.
+- *JAMIA* 33(4):922 (Apr 2026; Abdalla, James, **D.S. Jones**, Abdalla) [J]: removing race from inputs does not remove race correction (proxies); it analyses four standardized scenarios and does **not test any real clinical model against ground truth**.
 - The literature openly contradicts itself: *less* demographic encoding is better (Yang, *Nat Med* 2024 [J]) **vs** removing it creates bias (Parikh…Feragen 2026 [P]; Zink…Pierson, *PNAS* 2024 [J]).
-- The science of the signal is contested: "non-genetic" (Bollepalli, *npj Cardiovasc Health* 2025 [J]) **vs** genetic ancestry tracks voltage and LV geometry (Dallas Heart, *JAMA Cardiol* 2019 [J]).
+- The science of the signal is contested: "non-genetic" (Bollepalli, *npj Cardiovasc Health* 2025 [J]) **vs** genetic ancestry tracks voltage and LV geometry (Dallas Heart, *JAMA Cardiol* 2018 [J]).
 - The standards disagree: 12SL race-blind; Glasgow race-specific; AHA 2009 says adjust for race when validated; the rest of medicine is removing race (CKD-EPI 2021; race-neutral GLI-Global spirometry, ATS 2023) [J].
 - Behavioural audits are saturated and reassuring on AUROC (EchoNext 0.84–0.86 by race). That is precisely why the remaining question is *how* parity or disparity arises and whether the AI's population use is right.
 
@@ -141,7 +143,7 @@ If *Nature* declines, the same paper suits *Nature Medicine*, *Nature Cardiovasc
 - Jones…Glocker, *Nat Mach Intell* 2024 — https://www.nature.com/articles/s42256-024-00797-8
 - Yang…Ghassemi, *Nat Med* 2024 — https://www.nature.com/articles/s41591-024-03113-4
 - Bollepalli…Armoundas, *npj Cardiovasc Health* 2025 — https://www.nature.com/articles/s44325-025-00087-1
-- Dallas Heart Study, *JAMA Cardiol* 2019 — https://jamanetwork.com/journals/jamacardiology/fullarticle/2713961
+- Dallas Heart Study, *JAMA Cardiol* 2018 — https://jamanetwork.com/journals/jamacardiology/fullarticle/2713961
 - Kaur et al., *Circ Heart Fail* 2024 — https://www.ahajournals.org/doi/10.1161/CIRCHEARTFAILURE.123.010879
 - Noseworthy et al., *Circ Arrhythm Electrophysiol* 2020 — https://www.ahajournals.org/journal/doi/10.1161/CIRCEP.119.007988
 - Adedinsewo et al., *Nat Med* 2024 — https://www.nature.com/articles/s41591-024-03243-9
