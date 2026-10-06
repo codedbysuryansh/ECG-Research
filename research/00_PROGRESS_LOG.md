@@ -76,3 +76,14 @@ AI-bias papers in top general journals (the bar for a "bias" paper):
 - **Yang et al., *Nature Medicine* 2024**: demographic shortcuts & fairness non-transfer (imaging).
 
 **Lesson:** Nature-main bias/ECG papers are *discoveries about the world* (a hidden bias, a new biomarker, the label as the source of bias), shown with a decisive, simple experiment and objective ground truth. A pipeline of borrowed tools (Shapley + SAE + LEACE) is a *methods* contribution and will be desk-rejected at Nature main. Mullainathan/Obermeyer's recurring move — **replace human labels with ground truth from nature (outcomes, imaging) and see what the humans were missing** — is the single most relevant template for us.
+
+---
+## ROUND 2 (user request, 6 Oct 2026): "REVERIFY everything without bias, independently; write very detailed Claude Code files"
+| Step | What | Status |
+|---|---|---|
+| R1 | Independent re-verification of every claim; actively try to falsify own recommendation → research/H_reverification.md | in progress |
+| R2 | Verify technical specs: dataset formats, FM checkpoints/inputs, library APIs, ECG criteria formulas, echo truth definitions → research/I_technical_specs.md | pending |
+| R3 | Tested reference implementation of the core method (synthetic data) → claude_code/reference/ | pending |
+| R4 | Claude Code instruction files: CLAUDE.md, claude_code/*.md, .claude/commands, .claude/agents, configs | pending |
+| R5 | Consistency review, commit, push | pending |
+Environment note (round 2): raw.githubusercontent.com and pypi.org ARE reachable (official model/library code can be read); journal sites, PhysioNet, Zenodo, HF, arXiv still blocked → papers verified by multiple independent search queries.
