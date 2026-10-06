@@ -17,9 +17,9 @@ Full research + novelty audit, nothing else. Rules from the user:
 | B | Premise check (reputed journals only) | DONE → research/B_premise_check.md (verdict: NOT established in general; task-dependent) |
 | C | Component-by-component novelty + validity verdicts | DONE → research/C_component_verdicts.md |
 | D | Verify previous session's ledger | DONE → research/D_previous_ledger_verification.md |
-| E | Deep novelty search: flagship candidates incl. previous "hidden race correction" + alternatives (migration/environment, genetics, location=acquisition, outcome-anchored, normative charts) | pending |
-| F | Stress-test the chosen direction (reviewer objections, competitors, theory) | pending |
-| G | Data facts needed for feasibility (brief) | pending |
+| E | Deep novelty search | DONE → research/E_novelty_search.md |
+| F | Flagship design + stress test | DONE → research/F_flagship_design_and_stress_test.md |
+| G | Data facts | DONE → research/G_data_facts.md |
 | H | Final report: research/FINAL_REPORT.md | pending |
 
 (Older step numbering below = first pass of this session; kept as raw notes.)
