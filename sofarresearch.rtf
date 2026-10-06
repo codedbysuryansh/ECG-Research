@@ -1,0 +1,415 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2907
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \\documentclass[lettersize,journal]\{IEEEtran\}\
+\\usepackage\{amsmath,amsfonts\}\
+\\usepackage\{algorithmic\}\
+\\usepackage\{algorithm\}\
+\\usepackage\{array\}\
+\\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]\{subfig\}\
+\\usepackage\{textcomp\}\
+\\usepackage\{stfloats\}\
+\\usepackage\{url\}\
+\\usepackage\{verbatim\}\
+\\usepackage\{graphicx\}\
+\\usepackage\{cite\}\
+\\usepackage\{multirow\}\
+\\usepackage\{enumitem\}\
+\\usepackage\{xcolor\}\
+\\usepackage\{tikz\}\
+\\usepackage\{amssymb\}\
+\\usepackage\{pifont\}\
+\\usetikzlibrary\{arrows.meta,positioning\}\
+\\hyphenation\{op-tical net-works semi-conduc-tor IEEE-Xplore\}\
+\
+\\begin\{document\}\
+\
+\\title\{Mechanistic Localization and Inference-Time Correction of Population-Level Shortcuts in Electrocardiogram Foundation Models\}\
+\
+\\author\{Suryansh Singh,~\\IEEEmembership\{Student Member,~IEEE,\}\
+        Shraddha Sahni,~\\IEEEmembership\{Student Member,~IEEE,\}\
+         Mukesh Singh,~\\IEEEmembership\{Senior Member,~IEEE\}%\
+\\thanks\{Suryansh Singh and Shraddha Sahni are with the Department of Mechanical Engineering, Thapar Institute of Engineering and Technology, Patiala, India (E-mail: ssingh34\\_be24@thapar.edu; ssahni\\_be24@thapar.edu)\}\
+\\thanks\{Mukesh Singh is with the Department of Electrical and Instrumentation Engineering, Thapar Institute of Engineering and Technology, Patiala, India (E-mail: mukesh.singh@thapar.edu).\}%\
+\}\
+\
+\\maketitle\
+\
+\\begin\{abstract\}\
+Electrocardiogram (ECG) models trained using artificial intelligence (AI) can now approach cardiologist-level interpretation, but most are trained on data collected in North America and Europe. These models perform worse on patients from other populations, and this drop correlates more strongly with the model's difficulty in distinguishing normal cardiac characteristics from disease-related patterns. The model might read the heart signal correctly, but it may still link a patient's background to the odds of disease. Most researchers resort to collecting more diverse data and retraining the model, takes a lot of time and is expensive. If the cause turns out to be a locatable signal, a cheaper fix becomes possible. This paper proposes a four-phase pipeline: decomposing the gap into its causes, identifying the responsible signal, correcting it at the point of use, and verifying that the correction generalises. The first phase splits the performance gap into five parts: disease rate, scan type, harmless traits, real disease signs, and labelling rules, using Shapley-value decomposition, so the five shares always add up to the full gap. The second phase opens the model to find the exact signal at fault, using a sparse autoencoder, which pulls out clear, single-purpose signals from the model's inner workings. Each candidate signal is then swapped between patients to test whether it drives the output. The third step removes any confirmed signal at the moment of use with LEACE (LEAst-squares Concept Erasure), a closed-form correction that needs no retraining and no new patient labels. The corrected model is then checked for both fairness and accuracy. The fourth phase repeats this whole chain on a held-out population and two additional ECG models to confirm that the finding holds up in general.\
+\\end\{abstract\}\
+\
+\\vspace\{0.5em\}\
+\\noindent \\textbf\{\\textit\{Index Terms---\}\} \\textbf\{AI fairness, causal intervention, concept erasure, ECG, foundation models, inference-time correction, mechanistic interpretability, population bias, sparse autoencoders.\}\
+\
+\\section\{Introduction\}\
+\\IEEEPARstart\{T\}\{\}he rapid growth of artificial intelligence (AI) has led to ECG interpretation tools that can perform almost as well as cardiologists. These tools have the potential to improve healthcare in areas where heart specialists are not available. However, most AI models are trained on data collected from developed countries, mainly in North America and Europe. When tested on other populations, their performance often decreases. Research shows that this decrease is more strongly related to the patient's demographic data than to disease severity.\
+\
+Most published work simply notes that this gap exists, while only a few of them ask what inside the model actually causes it. That gap in understanding matters. The usual answer, collect more diverse data and retrain, costs money and time neither always available. If the gap traces to one specific, locatable cause, a faster and cheaper fix becomes possible. This report lays out a plan built to test that idea directly, specifically for ECG models, and to build a fix if the idea holds. The rest of this section reviews related ECG models and bias research, and then explains in detail how this paper's contributions close the gaps found in that research.\
+\
+\\subsection\{Foundation Models Built for ECG Reading\}\
+Several large ECG models have been released in the past two years. ECGFounder, published in NEJM AI in 2025, learned from over 10 million ECG recordings drawn from the Harvard-Emory database, and reaches strong accuracy across 80 separate heart conditions. ECG-FM, published in JAMIA Open in 2025, learns by comparing signal segments against each other, and its code is public. The Cardiac Sensing Foundation Model, published in Nature Machine Intelligence in 2026, trained on data from about 1.7 million people, and mixes hospital-grade ECG with smartwatch sensor data. DeepECG-SSL, published in the European Heart Journal in 2026, compared label-free and labeled training across eleven separate patient groups worldwide. The label-free version held up better on small, hard tasks. That study checked whether the models still worked. It never asked why they sometimes failed.\
+\
+Every one of these models shares a gap. None separates true heart signal from patient background inside its own workings. Group traits from the training data get folded silently into how the model reads a signal.\
+\
+\\subsection\{Evidence That the Gap Causes Real Harm\}\
+Direct evidence backs this concern. O'Sullivan and colleagues tested a large language model on real cardiology cases in 2026. Doctors assisted by the model made fewer errors. The trial used one hospital and English-speaking patients only. The authors could not test for bias across backgrounds, by their own account. The KERALA-AF study \\cite\{keralaaf2026\}, published in 2026, looked at South Asian patients with an irregular heartbeat condition. A model combining scanned paper ECGs with clinical data beat the standard risk score by a wide margin. The scanned images alone supplied most of the useful signal. DA-GAT-v2, a 2026 model built for fairness by age and sex, states plainly that its own training data lacks race labels. Its authors call for testing on data that has such labels, and name MIMIC-IV-ECG directly as the right dataset for that test. No published study has run that test yet.\
+\
+\\subsection\{Shortcut Learning in Medical Image Models\}\
+The clearest account of how such bias actually works comes from chest X-ray research, not ECG. A widely cited 2021 study found X-ray models miss disease more often in certain patient groups. Follow-up work traced this to the model learning group-linked shortcuts, patterns tied to a patient's background rather than to disease itself. A 2024 finding, reported through Nature Medicine and MIT News, matters most here. Fixing these shortcuts at one hospital did not carry over to a different hospital. A bias fix proven in one place can fail somewhere else. This is the direct reason ECG needs its own, separate study, rather than borrowing conclusions from image models.\
+\
+\\subsection\{Patient Background Encoded in the Raw ECG Signal\}\
+Separate work shows patient background sits directly inside the ECG waveform. Bollepalli and colleagues, training on close to ten million ECGs, built a model that guesses a patient's race correctly 86 percent of the time from the signal alone. The model does worse on lower-income patients, and its accuracy shifts as patients age. Both patterns point toward a signal shaped by environment and society, not fixed biology alone. This matters here because it means a background-linked signal is available for a diagnostic model to lean on as a shortcut. Whether ECG models actually do this has never been directly tested.\
+\
+\\subsection\{Tools for Locating and Editing Causes Inside a Model\}\
+A separate toolkit, built mostly for language models, offers a way past this limit. It has not yet reached ECG. Sparse autoencoders untangle a model's internal activity, which normally blends many unrelated signals inside single neurons, into a larger set of cleaner, single-purpose signals. These tools pair discovery with direct testing: a candidate signal gets changed on purpose, and the output is checked for a real change. This beats older methods that only guess at relevance from correlation, which past work has shown can mislead. A method called LEACE removes a confirmed bad signal from a model's internal representation, using closed-form math, without retraining. Lehn-Schi\{\\o\}ler and colleagues recently ran sparse autoencoders on brain-wave (EEG) models, and found a genuine mix-up between patient age and disease state inside the model. That result proves the toolkit works on body signals generally. It has not been used on ECG, or on background-linked bias specifically.\
+\
+A related thread has tried to split model performance drops into separate causes. Roschewitz and colleagues built a 2024 statistical test that separates disease-rate shifts from other shifts in image models, though it groups scanner changes and patient-background changes into one bucket. Gordaliza and colleagues, in 2025, used a fair-scoring math method to split an image model's performance drop between scanner changes and labeling changes, two causes only, leaving out true biological difference and harmless trait variation entirely. Neither method has been applied to ECG.\
+\
+\\subsection\{Contributions of This Work\}\
+The studies described above point to five clear gaps in current ECG bias research. This paper is built to close each of these gaps directly. The plan used in this paper has four phases, shown in Fig.~\\ref\{fig:pipeline\} in the Methodology section: splitting the gap into causes, finding the exact signal responsible, correcting that signal at the point of use, and checking that the correction still works on new data and new models. Each contribution below lines up with one part of this plan, and the fifth contribution adds a new test cohort. In total, this paper makes five main contributions.\
+\
+\\begin\{itemize\}[leftmargin=*, itemsep=6pt]\
+    \\item \\textbf\{Splitting the ECG performance gap into five separate, measurable causes.\} "Existing work on decomposing performance degradation into separate causal components has been limited to medical imaging, where studies typically consider at most two sources of shift simultaneously. Roschewitz and colleagues built a statistical test that separates disease-rate shifts from other shifts in image models, but it groups scanner changes and patient-background changes into one bucket \\cite\{roschewitz2024\}. Gordaliza and colleagues split an image model's drop between scanner changes and labeling changes only, leaving out true biological difference and harmless trait variation completely \\cite\{gordaliza2025\}. Neither method has been applied to ECG. Phase 1 of this paper closes this gap using Shapley-value decomposition, a fair-scoring method from game theory that gives each of five candidate causes, disease rate, scan type, harmless traits, true disease severity, and labelling rules, its own share of the total gap. Because Shapley values always add up correctly, the five shares sum exactly to the full measured gap, with nothing left unexplained.\
+\
+    \\item \\textbf\{Locating the exact internal signal behind group-linked bias, and testing it directly instead of guessing.\} It is already known that a patient's background can be read from a raw ECG signal with high accuracy \\cite\{bollepalli2025\}. But that alone does not prove a diagnostic model actually uses this information when it makes a decision. The tool needed to test this directly, sparse autoencoders combined with causal editing, has so far only been used on brain-wave (EEG) models, and never on ECG \\cite\{lehn2026\}. Phase 2 of this paper trains this tool on ECG models, then swaps a candidate signal between two patients' ECG recordings and checks whether the model's diagnosis changes as a result. A change in diagnosis is direct proof that the signal drives the output, rather than just sitting alongside it by coincidence.\
+\
+\\begin\{table*\}[t]\
+\\caption\{How Existing Work Compares Against the Gaps This Paper Addresses\}\
+\\label\{tab:matrix\}\
+\\centering\
+\\renewcommand\{\\arraystretch\}\{1.7\}\
+\\small\
+\\setlength\{\\tabcolsep\}\{4pt\}\
+\\begin\{tabular\}\{|>\{\\centering\\arraybackslash\}p\{4cm\}|>\{\\centering\\arraybackslash\}p\{2.5cm\}|>\{\\centering\\arraybackslash\}p\{2.5cm\}|>\{\\centering\\arraybackslash\}p\{2.3cm\}|>\{\\centering\\arraybackslash\}p\{2.6cm\}|\}\
+\\hline\
+\\textbf\{Method\} & \\textbf\{Splits Gap into Causes (G1)\} & \\textbf\{Proves Cause, Not Just Link (G2)\} & \\textbf\{No Retraining Needed (G3)\} & \\textbf\{Tests Alternative Explanation (G4)\} \\\\\
+\\hline\
+Roschewitz et al., 2024 \\cite\{roschewitz2024\}\
+ & \{\\color\{gray!70\}\\checkmark\}$^\{a\}$\
+ & \\ding\{55\}$^\{b\}$\
+ & N/A$^\{c\}$\
+ & \\ding\{55\} \\\\\
+\\hline\
+Gordaliza et al., 2025 \\cite\{gordaliza2025\}\
+ & \{\\color\{gray!70\}\\checkmark\}$^\{d\}$\
+ & \\ding\{55\}$^\{e\}$\
+ & N/A$^\{c\}$\
+ & \\ding\{55\} \\\\\
+\\hline\
+DA-GAT-v2 \\cite\{dagatv22026\}\
+ & \\ding\{55\}$^\{f\}$\
+ & \\ding\{55\}$^\{g\}$\
+ & \\ding\{55\}$^\{h\}$\
+ & \\ding\{55\} \\\\\
+\\hline\
+GAN-based patient information hiding \\cite\{kang2023\}\
+ & \\ding\{55\}\
+ & \\ding\{55\}\
+ & \\ding\{55\}$^\{i\}$\
+ & \\ding\{55\} \\\\\
+\\hline\
+\\textbf\{Proposed\} & \\checkmark & \\checkmark & \\checkmark & \\checkmark \\\\\
+\\hline\
+\\end\{tabular\}\
+\\vspace\{2pt\}\
+\\begin\{minipage\}\{\\textwidth\}\
+\\vspace\{8pt\}\
+\\footnotesize\
+\\textbf\{Legend:\} \\checkmark\\ = criterion fully met. \{\\color\{gray!70\}\\checkmark\} = criterion partially met (see note). \\ding\{55\}\\ = criterion not met. N/A = method does not attempt this kind of task, so the criterion does not directly apply. \\textbf\{G1\}: separates the accuracy gap into more than one or two causes. \\textbf\{G2\}: causally tests, at the level of a specific internal signal and individual patient, whether that signal drives the model's output, rather than only attributing variance to an external factor or ablating a whole architectural component. \\textbf\{G3\}: the fix runs on an already-trained model, with no new training and no demographic labels required after calibration. \\textbf\{G4\}: distinguishes the model misreading the ECG signal from the model reading it correctly but applying a wrong population-level assumption.\
+\
+\\vspace\{4pt\}\
+$^\{a\}$Splits the gap into 2 of the 5 causes considered here (prevalence shift, covariate shift); does not separate scan-type, harmless-trait, or labelling-rule effects.\
+$^\{b\}$Statistically classifies the type of shift present; does not intervene on the model's internal representations.\
+$^\{c\}$A diagnostic/detection method that does not attempt a correction step, so ``retraining needed'' is not a meaningful axis for it.\
+$^\{d\}$Splits the gap into 2 of the 5 causes (acquisition shift, annotation shift) via Shapley attribution over a structural causal graph; population/demographic shift appears in the causal graph but is not one of the two mechanisms quantified.\
+$^\{e\}$Causal attribution operates over external data-generating mechanisms (scanner, annotator), not over the model's internal activations.\
+$^\{f\}$A bias-mitigation architecture, not a decomposition method; does not attempt to separate the gap into causes.\
+$^\{g\}$Ablates whole architectural components (temporal encoder, FiLM layer, graph-construction network) and shows each affects fairness; does not test a specific internal signal against a specific patient's diagnosis via causal patching.\
+$^\{h\}$Requires a full three-stage training curriculum and a patient demographic vector (age, sex) at both training and inference time.\
+$^\{i\}$Uses a separately trained GAN to transform arrhythmic ECGs into normal-looking ECGs; it is designed for hiding health information rather than correcting demographic bias and does not perform causal testing of an internal model representation.\
+\\end\{minipage\}\
+\\end\{table*\}\
+\
+    \\item \\textbf\{Building a fix that works at the point of use, needing no retraining and no new patient data.\} No existing fix has been shown to work outside the hospital it was built for. Fixes such as DA-GAT-v2 and GAN-based signal stripping both need full retraining and need patient background labels ahead of time. A related finding in chest X-ray models showed that a bias fix proven at one hospital did not carry over to a different hospital \\cite\{mitnews2024\}. This same generalization problem has never been addressed for ECG. Phase 3 of this paper works differently. Once Phase 2 confirms which internal signal drives the bias, LEACE (LEAst-squares Concept Erasure) removes exactly that signal at the moment a prediction is made, not during training. In plain terms, the model is calibrated once on a small reference set of about a thousand ECGs. This step learns one internal number that represents how strongly a signal looks tied to one population. From then on, that number is subtracted out of every new patient's ECG right before the model gives its final answer. The model's trained weights never change, and no new patient labels are needed once the model is in use.\
+\
+    \\item \\textbf\{Testing a second explanation for ECG bias that nobody has checked before.\} Existing studies all assume that a model's accuracy drops on a new population because the model misreads the ECG signal itself \\cite\{seyyed2021,osullivan2026\}. An equally likely second explanation has never been tested. The model might read the signal correctly, but then apply a learned assumption about how common a disease is in a certain population, and that assumption may simply be wrong for the patient in front of it. The causal-patching step inside Phase 2 is built to tell these two explanations apart for the first time, by checking whether swapping a background-linked signal changes the diagnosis on its own.\
+\
+    \\item \\textbf\{Building a fair test set for South Asian patients, a group almost missing from ECG AI research today.\} The standardized benchmark BenchECG draws its cohorts only from Europe, the USA, China, and Brazil \\cite\{benchecg2025\}. A 2026 cardiovascular foundation model states outright that its performance on African and Latin American patients has not been tested \\cite\{ecgclip2026\}. The closest thing to a South Asian ECG resource, KERALA-AF, is a risk-score validation study that uses scanned paper images, not a foundation-model benchmark \\cite\{keralaaf2026\}. Phase 4 of this paper closes this gap by building a South Asian test cohort from the UK Biobank's genetically identified subgroup, about 2,782 people, and checking whether the Phase 3 fix, and the underlying finding, hold up across three separate ECG foundation models.\
+\\end\{itemize\}\
+\
+Table~\\ref\{tab:matrix\} lines up the two existing decomposition methods and the two existing fixes described above against four of these gaps (G1 to G4). None of the existing methods meet all four at once. The fifth gap, on Global South coverage, is a question of data availability rather than method design, and is addressed directly by the Phase 4 cohort described above.\
+\
+\\section\{Methodology\}\
+The proposed approach unfolds across four phases, moving from cause decomposition to cross-population validation, as summarized in Fig.~\\ref\{fig:pipeline\}.\
+\
+\\begin\{figure*\}[t]\
+\\centering\
+\
+\\begin\{tikzpicture\}\
+\
+\\node[\
+    rectangle, rounded corners=3pt, draw=black!60, thick, fill=gray!12,\
+    minimum width=4.55cm, minimum height=5.50cm,\
+    text width=4.15cm, align=left, inner sep=5pt, font=\\scriptsize\
+] (data) at (0,0) \{\
+\
+    \\textbf\{\\normalsize Data Foundation\}\\\\[3pt]\
+\
+    $\\bullet$ \\textbf\{MIMIC-IV-ECG:\} 795k ECGs,\\\\\
+    \\quad 159k patients; race/ethnicity labels\\\\[2pt]\
+\
+    $\\bullet$ \\textbf\{UK Biobank:\} $\\sim$90k ECGs,\\\\\
+    \\quad incl.\\ 2\{,\}782 South Asian ancestry\\\\[2pt]\
+\
+    $\\bullet$ \\textit\{Within-site design:\}\\\\\
+    \\quad acquisition and clinical routine held\\\\\
+    \\quad constant while ancestry varies\\\\[2pt]\
+\
+    $\\bullet$ Check ECG--ancestry overlap before\\\\\
+    \\quad final analysis\\\\[2pt]\
+\
+    $\\bullet$ \\textit\{Both datasets already public\}\
+\};\
+\
+\\node[\
+    rectangle, rounded corners=3pt, draw=black!60, thick, fill=blue!6,\
+    minimum width=4.55cm, minimum height=5.50cm,\
+    text width=4.15cm, align=left, inner sep=5pt, font=\\scriptsize\
+] (phase1) at (5.05,0) \{\
+\
+    \\textbf\{\\normalsize Phase 1: Decompose\}\\\\[3pt]\
+\
+    $\\bullet$ \\textbf\{Measure the cross-population gap\}\\\\\
+    \\quad within each dataset, holding site and\\\\\
+    \\quad scan device fixed\\\\[2pt]\
+\
+    $\\bullet$ \\textbf\{Shapley-value attribution\}\\\\\
+    \\quad evaluate all $2^5=32$ combinations\\\\\
+    \\quad so the five contributions sum to the\\\\\
+    \\quad full measured gap\\\\[2pt]\
+\
+    $\\bullet$ \\textit\{Five candidate causes:\}\\\\\
+    \\quad disease rate, scan type, harmless traits,\\\\\
+    \\quad true disease signs, labelling rules\
+\};\
+\
+\\node[\
+    rectangle, rounded corners=3pt, draw=black!60, thick, fill=green!6,\
+    minimum width=4.55cm, minimum height=11.40cm,\
+    text width=4.15cm, align=left, inner sep=5pt, font=\\scriptsize\
+] (phase2) at (10.10,-2.95) \{\
+\
+    \\textbf\{\\normalsize Phase 2: Localize\}\\\\[5pt]\
+\
+    $\\bullet$ \\textit\{Reuses a validated toolkit\}\\\\\
+    \\quad same SAE steps already shown\\\\\
+    \\quad to work on brain-wave (EEG) models\\\\[2pt]\
+\
+    $\\bullet$ \\textbf\{Train sparse autoencoder\}\\\\\
+    \\quad on the model's internal activity\\\\[2pt]\
+\
+    $\\bullet$ \\textbf\{Find candidate signals\}\\\\\
+    \\quad identify single-purpose features\\\\\
+    \\quad linked to patient background\\\\[2pt]\
+\
+    $\\bullet$ \\textbf\{Use linear probes\}\\\\\
+    \\quad search internal representations\\\\\
+    \\quad for population-linked signals\\\\[2pt]\
+\
+    $\\bullet$ \\textbf\{Test causally\}\\\\\
+    \\quad swap a candidate signal between\\\\\
+    \\quad patients while holding other\\\\\
+    \\quad information constant\\\\[2pt]\
+\
+    $\\bullet$ \\textbf\{Check model output\}\\\\\
+    \\quad determine whether changing the\\\\\
+    \\quad signal changes the diagnosis\\\\[2pt]\
+\
+    $\\bullet$ \\textbf\{Distinguish two explanations\}\\\\\
+    \\quad model misreads the ECG signal\\\\\
+    \\quad \\textit\{versus\}\\\\\
+    \\quad model reads it correctly but applies\\\\\
+    \\quad the wrong population-level assumption\\\\[2pt]\
+\
+    $\\bullet$ A prediction change indicates\\\\\
+    \\quad a causal driver rather than\\\\\
+    \\quad simple correlation\\\\[2pt]\
+\
+    $\\bullet$ Only causally confirmed signals\\\\\
+    \\quad proceed to Phase 3\
+\};\
+\
+\\node[\
+    rectangle, rounded corners=3pt, draw=black!60, thick, fill=purple!6,\
+    minimum width=4.55cm, minimum height=5.50cm,\
+    text width=4.15cm, align=left, inner sep=5pt, font=\\scriptsize\
+] (phase4) at (0,-5.90) \{\
+\
+    \\textbf\{\\normalsize Phase 4: Generalize\}\\\\[3pt]\
+\
+    $\\bullet$ \\textbf\{Repeat the full chain\}\\\\\
+    \\quad on a held-out population comparison\\\\[2pt]\
+\
+    $\\bullet$ \\textbf\{Test across three open ECG\}\\\\\
+    \\quad foundation models: ECG-FM,\\\\\
+    \\quad ECGFounder, and CSFM\\\\[2pt]\
+\
+    $\\bullet$ Repeat across a second\\\\\
+    \\quad patient-background comparison\\\\[2pt]\
+\
+    $\\bullet$ Confirm localization and correction\\\\\
+    \\quad are not model- or dataset-specific\\\\[2pt]\
+\
+    $\\bullet$ A failed replication defines a\\\\\
+    \\quad meaningful boundary of the method\
+\};\
+\
+\\node[\
+    rectangle, rounded corners=3pt, draw=black!60, thick, fill=orange!8,\
+    minimum width=4.55cm, minimum height=5.50cm,\
+    text width=4.15cm, align=left, inner sep=5pt, font=\\scriptsize\
+] (phase3) at (5.05,-5.90) \{\
+\
+    \\textbf\{\\normalsize Phase 3: Sever\}\\\\[3pt]\
+\
+    $\\bullet$ \\textbf\{Apply LEACE\}\\\\\
+    \\quad closed-form concept erasure\\\\\
+    \\quad to the confirmed internal signal\\\\[2pt]\
+\
+    $\\bullet$ \\textbf\{Inference-time correction\}\\\\\
+    \\quad remove the signal at the moment\\\\\
+    \\quad of use, before prediction\\\\[2pt]\
+\
+    $\\bullet$ \\textbf\{Model weights never change\}\\\\\
+    \\quad no retraining and no new patient\\\\\
+    \\quad labels after calibration\\\\[2pt]\
+\
+    $\\bullet$ Preserve detection of clear,\\\\\
+    \\quad unmistakable disease signals\\\\[2pt]\
+\
+    $\\bullet$ Check fairness + raw accuracy\\\\\
+    \\quad against retraining-based fixes\
+\};\
+\
+\\draw[-\{Latex[length=2mm]\}, thick, black!50] (2.275,0) -- (2.775,0);\
+\
+\\draw[-\{Latex[length=2mm]\}, thick, black!50] (7.325,0) -- (7.825,0);\
+\
+\\draw[-\{Latex[length=2mm]\}, thick, black!50] (7.825,-5.90) -- (7.325,-5.90);\
+\
+\\draw[-\{Latex[length=2mm]\}, thick, black!50] (2.775,-5.90) -- (2.275,-5.90);\
+\
+\\end\{tikzpicture\}\
+\
+\\caption\{\
+Four-phase pipeline for mechanistic localization and inference-time\
+correction of population-level shortcuts in ECG foundation models.\
+\\textbf\{Phase 1\} decomposes the cross-population performance gap into\
+five causal components using Shapley-value attribution.\
+\\textbf\{Phase 2\} opens the model with sparse autoencoders to identify\
+background-linked internal signals and tests their causal role by\
+swapping candidate signals between patients.\
+\\textbf\{Phase 3\} removes the confirmed signal at the point of use via\
+LEACE, requiring no retraining or new patient labels.\
+\\textbf\{Phase 4\} validates the finding across held-out populations and\
+multiple ECG foundation models.\
+\}\
+\\label\{fig:pipeline\}\
+\
+\\end\{figure*\}\
+\
+\\subsection\{Data\}\
+The design compares patient background groups inside a single hospital or study, not across different countries. This keeps scan type and clinical routine fixed, so a measured gap can only trace to the patients themselves. MIMIC-IV-ECG supplies 795\{,\}546 ECG recordings from 159\{,\}608 patients at one United States hospital system, with race and ethnicity recorded for every patient. UK Biobank separately holds a resting ECG record for roughly 90\{,\}000 participants, and its genetic data identifies 2\{,\}782 people of mostly South Asian background within that group, all scanned under the same study protocol as everyone else. The exact overlap between the ECG records and that South Asian group is not yet confirmed, and will be checked before final analysis, since it decides whether that comparison has enough patients behind it. Both datasets are open to researchers already. No new data-sharing agreement is needed for the core analysis.\
+\
+\\subsection\{Phase 1: Splitting the Gap into Causes\}\
+Model accuracy is compared across patient background groups within each dataset, holding site and scan device fixed. A Shapley-value method credits each of five candidate causes with its fair share of the measured gap, based on the model's behavior across every possible combination of the five causes (32 combinations for five causes), so the five shares always add up to the full gap. Disease-rate differences are estimated by matching one group's disease rate to the other's and re-scoring. Scan-type differences are estimated by turning digital signals into realistic scanned-paper images, using the ECG-Image-Kit toolkit, and re-scoring. Harmless-trait differences are read from the gap in false alarms among confirmed-healthy patients. True disease-difference is read from the gap in correct detections among confirmed-sick patients. Labeling-rule differences are estimated by matching every site's disease threshold to one shared standard and re-scoring.\
+\
+\\subsection\{Phase 2: Locating the Exact Cause\}\
+Sparse autoencoders are trained on the internal activity of open, downloadable ECG models, following the same steps already shown to work on brain-wave models. Simple linear probes then search that activity for a signal tied to patient background. Each candidate signal is tested directly, not just observed: a signal drawn from one patient's ECG is inserted into a different patient's ECG scan inside the model, with every other detail held constant, and the model's output is checked for a change. A shift in diagnosis proves that signal actually drives the output, not merely that it sits alongside it.\
+\
+\\subsection\{Phase 3: Fixing the Model at the Point of Use\}\
+Where Phase 2 confirms a real cause, LEACE removes that exact signal from the model's internal activity at the moment of use. The model's trained weights never change, and no new labeled data is required. The fixed model is then checked to confirm it still catches clear, unmistakable disease, such as a major heart attack. Its fairness and its raw accuracy are then compared directly against the retraining-based fixes already in use.\
+\
+\\subsection\{Phase 4: Testing Beyond One Dataset\}\
+To show the finding holds generally, and is not a one-off, the entire chain above is repeated on the second patient-background comparison not used first, and on a third open ECG model, the Cardiac Sensing Foundation Model. A result that holds across both comparisons and both extra models counts as a general pattern. A result that does not hold marks a real boundary, and is informative either way.\
+\
+\\section\{Significance\}\
+If the main idea holds, this work gives the field its first real, tested cause for ECG bias across patient groups, plus a fix that skips retraining and new data collection entirely, useful anywhere resources are limited. If the main idea does not hold, that still teaches the field something concrete: that ECG bias does not work the same way image-model bias does, which redirects future effort toward genuine biological difference instead of a shortcut fix that would not apply. Either way, the five-cause split, the interpretability toolkit adapted for a body signal, and the new cross-background test set built from MIMIC-IV and UK Biobank stand as real, usable contributions on their own.\
+\
+\\begin\{thebibliography\}\{99\}\
+\
+\\bibitem\{adebayo2018\}\
+Adebayo, J., Gilmer, J., Muelly, M., Goodfellow, I., Hardt, M., \\& Kim, B. (2018). Sanity checks for saliency maps. \\textit\{Advances in Neural Information Processing Systems (NeurIPS)\}.\
+\
+\\bibitem\{belrose2023\}\
+Belrose, N., Schneider-Joseph, D., Ravfogel, S., Cotterell, R., Raff, E., \\& Biderman, S. (2023). LEACE: Perfect linear concept erasure in closed form. \\textit\{Advances in Neural Information Processing Systems (NeurIPS)\}. arXiv:2306.03819.\
+\
+\\bibitem\{bollepalli2025\}\
+Bollepalli, S. C., Isselbacher, E. M., Singh, J. P., \\& Armoundas, A. A. (2025). Race and the electrocardiogram: Evidence for a non-genetic signal. \\textit\{npj Cardiovascular Health\}. DOI: 10.1038/s44325-025-00087-1.\
+\
+\\bibitem\{bycroft2018\}\
+Bycroft, C., Freeman, C., Petkova, D., et al. (2018). The UK Biobank resource with deep phenotyping and genomic data. \\textit\{Nature\}, 562, 203--209.\
+\
+\\bibitem\{csfm2026\}\
+Cardiac Sensing Foundation Model. (2026). \\textit\{Nature Machine Intelligence\}, 8(2), 220--233. DOI: 10.1038/s42256-026-01180-5. Code: \\url\{github.com/guxiao0822/Cardiac-Sensing-FM\}.\
+\
+\\bibitem\{shortcut2023\}\
+Demographic shortcut learning in chest radiograph classifiers. (2023). \\textit\{Nature Communications\}. DOI: 10.1038/s41467-023-39902-7.\
+\
+\\bibitem\{ecgfm2025\}\
+ECG-FM: An open electrocardiogram foundation model. (2025). \\textit\{JAMIA Open\}, 8(5), ooaf122. arXiv:2408.05178. Code: \\url\{github.com/bowang-lab/ECG-FM\}.\
+\
+\\bibitem\{ecgfounder2025\}\
+ECGFounder: A large-scale foundation model for electrocardiogram interpretation. (2025). \\textit\{NEJM AI\}. DOI: 10.1056/AIoa2401033. arXiv:2410.04133. Weights: \\url\{huggingface.co/PKUDigitalHealth/ECGFounder\}.\
+\
+\\bibitem\{ecgimagekit2024\}\
+ECG-Image-Kit and ECG-Image-Database. (2024). \\textit\{Physiological Measurement\}. DOI: 10.1088/1361-6579/ad4954. arXiv:2409.16612.\
+\
+\\bibitem\{dagatv22026\}\
+Fairness-aware ECG classification with sex and age bias mitigation (DA-GAT-v2). (2026). \\textit\{Scientific Reports\}. DOI: 10.1038/s41598-026-54206-8.\
+\
+\\bibitem\{gordaliza2025\}\
+Gordaliza, P., et al. (2025). Causal attribution of model performance gaps in medical imaging under distribution shifts. \\textit\{MedEurIPS Workshop\}. arXiv:2512.09094.\
+\
+\\bibitem\{johnson2023\}\
+Johnson, A. E. W., Bulgarelli, L., Pollard, T., Celi, L. A., Mark, R., \\& Horng, S. (2023). MIMIC-IV-ECG. \\textit\{PhysioNet\}. \\url\{physionet.org/content/mimic-iv-ecg/\}.\
+\
+\\bibitem\{lehn2026\}\
+Lehn-Schi\{\\o\}ler, W. T., et al. (2026). Mechanistic interpretability of EEG foundation models via sparse autoencoders. arXiv:2605.13930.\
+\
+\\bibitem\{marks2025\}\
+Marks, S., Rager, C., Michaud, E. J., Belinkov, Y., Bau, D., \\& Mueller, A. (2025). Sparse feature circuits: Discovering and editing interpretable causal graphs in language models. \\textit\{ICLR (Oral)\}. arXiv:2403.19647.\
+\
+\\bibitem\{osullivan2026\}\
+O'Sullivan, J. W., et al. (2026). A large language model for complex cardiology care. \\textit\{Nature Medicine\}, 32(2), 616--623. DOI: 10.1038/s41591-025-04190-9.\
+\
+\\bibitem\{roschewitz2024\}\
+Roschewitz, M., Mehta, R., Jones, C., \\& Glocker, B. (2024). Automatic dataset shift identification to support root cause analysis of AI performance drift. arXiv:2411.07940.\
+\
+\\bibitem\{keralaaf2026\}\
+Scanned paper ECGs carry diagnostic signal in a South Asian atrial fibrillation cohort (KERALA-AF). (2026). \\textit\{Lancet Regional Health -- Southeast Asia\}. DOI: 10.1016/j.lansea.2025.100715.\
+\
+\\bibitem\{seyyed2021\}\
+Seyyed-Kalantari, L., Zhang, H., McDermott, M. B. A., Chen, I. Y., \\& Ghassemi, M. (2021). Underdiagnosis bias of artificial intelligence algorithms applied to chest radiographs in under-served patient populations. \\textit\{Nature Medicine\}, 27, 2194--2202.\
+\
+\\bibitem\{mitnews2024\}\
+Study reveals why AI-analyzed medical images can be biased. (2024). \\textit\{MIT News\}. \\url\{news.mit.edu/2024/study-reveals-why-ai-analyzed-medical-images-can-be-biased-0628\}.\
+\
+\\bibitem\{benchecg2025\}\
+BenchECG and xECG: A benchmark and baseline for ECG foundation models. (2025). arXiv:2509.10151.\
+\
+\\bibitem\{ecgclip2026\}\
+A signal-language foundation model for broad-spectrum cardiovascular assessment from routine electrocardiography. (2026). arXiv:2605.25446.\
+\
+\\bibitem\{kang2023\}\
+Y. Kang, G. Yang, H. Eom, S. Han, S. Baek, S. Noh, Y. Shin, and C. Park, ``GAN-based patient information hiding for an ECG authentication system,'' \\textit\{Biomedical Engineering Letters\}, vol. 13, no. 2, pp. 197--207, 2023,\
+doi: 10.1007/s13534-023-00266-y.\
+\
+\\end\{thebibliography\}\
+\
+\\end\{document\}}
