@@ -14,7 +14,7 @@ Full research + novelty audit, nothing else. Rules from the user:
 | Step | What | Status |
 |---|---|---|
 | A | Restate original architecture exactly (from the 7 repo files) | DONE → research/A_original_architecture.md |
-| B | Premise check: is "ECG-AI is biased across regions/populations" established? (reputed journals only) | pending |
+| B | Premise check (reputed journals only) | DONE → research/B_premise_check.md (verdict: NOT established in general; task-dependent) |
 | C | Component-by-component novelty + validity verdicts (SAE, LEACE, Shapley 5-way, prevalence-proxy shortcut, 3-case logic, within-site design) | partly done (see Step 2 findings below) |
 | D | Independently verify the previous session's ledger claims (research/prev_session_ECG_Nature_Research_Ledger.md) | pending |
 | E | Deep novelty search: flagship candidates incl. previous "hidden race correction" + alternatives (migration/environment, genetics, location=acquisition, outcome-anchored, normative charts) | pending |
