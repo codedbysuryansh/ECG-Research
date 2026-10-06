@@ -48,3 +48,18 @@ The current plan (Shapley decomposition → SAE localization → LEACE erasure �
 | Performance-gap decomposition | Existing literature (DISDE, HDPD, Gordaliza) |
 | Race-stratified MIMIC-IV-ECG evaluation | Partially done (2026 preprints; gaps reported small) |
 => Still publishable as solid ECG work, but **not** at Nature (main) novelty, and Nature Communications would be a stretch. A new central idea is required.
+
+### Step 3 — What *Nature* (main journal) actually publishes here
+Nature's stated criteria: "outstanding scientific importance", "a conclusion of interest to an interdisciplinary readership", "an advance in understanding likely to influence thinking in the field"; ~8% of ~200 weekly submissions accepted; **editors (not referees) decide broad interest**.
+
+ECG-AI papers that made *Nature* main recently (our real comparators):
+1. **EchoNext** — Poterucha et al., *Nature* 644:221–230 (2025), doi 10.1038/s41586-025-09227-0. 700k ECG–echo pairs, 230k pts, multi-system validation, reader study (77% vs 64–69% cardiologists), FDA-cleared, "consistent performance across racial/ethnic groups". Dataset released on PhysioNet (Elias & Finer, Sept 2025). Why Nature: massive, objective (echo) ground truth, clinical impact at scale.
+2. **ECG biomarker for sudden cardiac death** — Obermeyer, Schubert, Ross, Mullainathan, Lingman, *Nature* 655:210–218 (24 Jun 2026), doi 10.1038/s41586-026-10674-6. Swedish population ECGs linked to death certificates; found a high-risk group (2.2% of population, 7.0%/yr SCD) 86% of whom LVEF misses. Why Nature: a *discovery* (new biomarker) made by training on **hard outcomes instead of human labels**.
+
+AI-bias papers in top general journals (the bar for a "bias" paper):
+- **Hofmann et al., *Nature* 633:147 (2024)** "AI generates covertly racist decisions about people based on their dialect": a *hidden* form of bias invisible to standard (overt) tests, across many models, worse after alignment. Why Nature: surprising, general, societally important, simple decisive experiment (matched guise).
+- **Obermeyer et al., *Science* 2019**: bias came from the **choice of label** (cost as proxy for need).
+- **Pierson et al., *Nature Medicine* 27:136 (2021)**: training on patient-reported pain instead of radiologist KL grade explains 43% vs 9% of racial pain disparity → the *clinical standard* (derived in a white British population) was the source of bias.
+- **Yang et al., *Nature Medicine* 2024**: demographic shortcuts & fairness non-transfer (imaging).
+
+**Lesson:** Nature-main bias/ECG papers are *discoveries about the world* (a hidden bias, a new biomarker, the label as the source of bias), shown with a decisive, simple experiment and objective ground truth. A pipeline of borrowed tools (Shapley + SAE + LEACE) is a *methods* contribution and will be desk-rejected at Nature main. Mullainathan/Obermeyer's recurring move — **replace human labels with ground truth from nature (outcomes, imaging) and see what the humans were missing** — is the single most relevant template for us.
